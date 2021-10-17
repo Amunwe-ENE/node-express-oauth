@@ -85,7 +85,10 @@ app.post('/approve', (req, res) =>{
 
 	const randomStr = randomString();
 	authorizationCodes[randomStr] = { clientReq: r, userName }
-	res.redirect(r.redirect_uri + "?code=" + randomStr + "&state=" +r.state)
+	const redirectUri = new URL(r.redirect_uri)
+	redirectUri.searchParams.append("code", randomStr)
+	redirectUri.searchParams.append('state', r.state)
+	res.redirect(redirectUri.href)
 
 	
 })
