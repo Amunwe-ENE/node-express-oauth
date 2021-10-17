@@ -54,14 +54,14 @@ app.use(bodyParser.urlencoded({ extended: true }))
 Your code here
 */
 app.get('/authorize', (req, res) =>{
-	const { client_id } = req.query.client_id;
+	const { client_id } = req.query;
 
 	if (!clients[client_id]) 
-		return res.status(401)
+		return res.status(401).end()
 		
 	const scopes  = req.query.scopes.split(' ')
 	if (!containsAll(clients[client_id].scopes, scopes)) 
-		return res.status(401)
+		return res.status(401).end()
 		
 	const requestId = randomString();
 	requests[requestId] = req.query;
@@ -75,10 +75,10 @@ app.get('/authorize', (req, res) =>{
 app.post('/approve', (req, res) =>{
 	const { userName, password, requestId } = req.body;
 	if (!users[userName] && ! (users[userName] == password)) 
-		return res.status(401)
+		return res.status(401).end()
 
 	if (!requests[requestId]) 
-		return res.status(401)
+		return res.status(401).end()
 		
 	const r = requests[requestId];
 	delete requests[requestId];
@@ -92,7 +92,7 @@ app.post('/approve', (req, res) =>{
 
 app.post('/token', async (req, res) => {
 	if (!req.headers.authorization)
-		return res.status(401)
+		return res.status(401).end()
 
 	const decodedClient = decodeAuthCredentials(req.headers.authorization)
 	if(!clients[decodedClient.clientId] && 
@@ -105,10 +105,10 @@ app.post('/token', async (req, res) => {
 	
 	const obj = authorizationCodes[code];
 	delete authorizationCodes[code];
-	const privateKey = fs.readFileSync("assets/private_key.pem")
+	const privateKey = fs.readFileSync("./assets/private_key.pem")
 	const token = jwt.sign({ userName: obj.userName, scope: obj.clientReq.scope }, privateKey, { algorithm: 'RS256' });
 	
-	return res.status(200).json({ token })
+	return res.status(200).json({ access_token: token, token_type: "Bearer" })
 })
 
 const server = app.listen(config.port, "localhost", function () {
