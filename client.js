@@ -56,9 +56,9 @@ app.get("/callback", (req, res) => {
 
 		})
 	}).then( response => {
-		res.render("welcome", response.data)
+		res.render("welcome", {user: response.data})
 	}).catch( e => {
-		return res.render("welcome")
+		return res.status(500).end(e)
 	})
 })
 const server = app.listen(config.port, "localhost", function () {
