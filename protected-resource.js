@@ -48,7 +48,7 @@ app.get("/user-info", (req, res) => {
 	const scopes = decoded.scope.split(" ")
 	const userInfo = {}
 	scopes.forEach(element => {
-		let propertyName = element.slice(12)
+		let propertyName = element.slice(11)
 		userInfo[propertyName] = users[decoded.userName][propertyName]
 	});
 	res.status(200).json(userInfo)
